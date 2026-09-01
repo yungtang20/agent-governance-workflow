@@ -9,6 +9,8 @@ It supports two execution modes:
 
 Codex can use `REVIEWED_PIPELINE` when the runtime proves an independent reviewer was actually invoked. Pi, OpenCode, and other CLIs default to `SINGLE_EXECUTOR`.
 
+The execution mode sits inside a risk-based six-stage lifecycle: `PLAN -> DESIGN -> BUILD -> TEST -> DEPLOY -> MAINTAIN`. Small changes may use a documented subset; skipped phases require `SKIPPED_WITH_REASON`, and behavior changes require testing. Read [`docs/ai-native-sdlc.md`](docs/ai-native-sdlc.md) and copy [`templates/lifecycle-record.md`](templates/lifecycle-record.md) when a task needs an auditable stage record.
+
 ## Quick start
 
 1. Copy the relevant files from `templates/` into your agent configuration.

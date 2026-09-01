@@ -11,12 +11,16 @@ REQUIRED_FILES = (
     "CONTRIBUTING.md",
     "docs/reviewed-pipeline.md",
     "docs/single-executor.md",
+    "docs/ai-native-sdlc.md",
     "templates/AGENTS.codex.md",
     "templates/AGENTS.pi.md",
     "templates/executor.opencode.md",
     "templates/task-packet.md",
     "templates/audit-ledger.md",
+    "templates/lifecycle-record.md",
 )
+
+STAGES = ("PLAN", "DESIGN", "BUILD", "TEST", "DEPLOY", "MAINTAIN")
 
 FORBIDDEN_PATTERNS = {
     "Windows user path": re.compile(r"[A-Za-z]:\\Users\\", re.IGNORECASE),
@@ -43,6 +47,25 @@ def route(*, excluded: bool = False, hard: int = 0, simple: bool = False, soft: 
 
 def scan_text(path: Path, text: str) -> list[str]:
     return [f"{path}: forbidden {name}" for name, pattern in FORBIDDEN_PATTERNS.items() if pattern.search(text)]
+
+
+def validate_lifecycle(text: str) -> list[str]:
+    failures: list[str] = []
+    positions = [text.find(f"## {stage}") for stage in STAGES]
+    if any(position < 0 for position in positions):
+        failures.append("lifecycle missing one or more stage headings")
+    elif positions != sorted(positions):
+        failures.append("lifecycle stages are out of order")
+    for stage in STAGES:
+        block_start = text.find(f"## {stage}")
+        block_end = text.find("\n## ", block_start + 4)
+        block = text[block_start:] if block_end < 0 else text[block_start:block_end]
+        for marker in ("Input", "Output", "Gate", "Skip criteria"):
+            if marker not in block:
+                failures.append(f"lifecycle {stage} missing {marker}")
+    if "does not auto-deploy" not in text:
+        failures.append("lifecycle missing no-auto-deploy boundary")
+    return failures
 
 
 def validate(root: Path = ROOT) -> list[str]:
@@ -72,6 +95,14 @@ def validate(root: Path = ROOT) -> list[str]:
     for actual, expected in scenarios:
         if actual != expected:
             failures.append(f"route mismatch: expected {expected}, got {actual}")
+    lifecycle_path = root / "docs/ai-native-sdlc.md"
+    lifecycle = lifecycle_path.read_text(encoding="utf-8") if lifecycle_path.is_file() else ""
+    failures.extend(validate_lifecycle(lifecycle))
+    record_path = root / "templates/lifecycle-record.md"
+    record = record_path.read_text(encoding="utf-8") if record_path.is_file() else ""
+    for marker in ("included_phases", "skipped_phases", "SKIPPED_WITH_REASON", "authorization_status", "automatic_fix_attempts"):
+        if marker not in record:
+            failures.append(f"lifecycle record missing marker: {marker}")
     return failures
 
 

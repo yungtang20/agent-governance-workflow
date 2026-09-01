@@ -24,6 +24,14 @@ class RouteTests(unittest.TestCase):
 
 
 class PublicContentTests(unittest.TestCase):
+    def test_lifecycle_contract_passes(self) -> None:
+        text = (ROOT / "docs/ai-native-sdlc.md").read_text(encoding="utf-8")
+        self.assertEqual(validate.validate_lifecycle(text), [])
+
+    def test_lifecycle_order_is_checked(self) -> None:
+        text = "\n".join(f"## {stage}\nInput\nOutput\nGate\nSkip criteria" for stage in reversed(validate.STAGES))
+        self.assertIn("out of order", " ".join(validate.validate_lifecycle(text)))
+
     def test_safe_placeholders_pass(self) -> None:
         self.assertEqual(validate.scan_text(Path("safe.md"), "Root: ${PROJECT_ROOT}"), [])
 

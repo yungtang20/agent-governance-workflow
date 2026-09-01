@@ -17,3 +17,7 @@ Use `DUAL_MODEL_PASS` only when all four evidence artifacts exist. Otherwise use
 - Do not expose secrets or production data.
 - Never claim unexecuted checks passed.
 - Project-local `AGENTS.md` remains authoritative for project data and verification.
+
+## Lifecycle
+
+Apply the risk-based lifecycle in `docs/ai-native-sdlc.md` and record it with `templates/lifecycle-record.md`. Use the smallest justified phase set, record every skipped phase as `SKIPPED_WITH_REASON`, and never treat `DEPLOY` as authorization to change external state.
