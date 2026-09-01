@@ -31,4 +31,4 @@ Configuration does not prove that an independent review occurred. `DUAL_MODEL_PA
 
 ## License
 
-License selection is pending. This repository must not be described as open source until `LICENSE.pending.md` is replaced by an approved `LICENSE`.
+Licensed under the MIT License. See `LICENSE`.
